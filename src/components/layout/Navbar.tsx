@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { formatNaira } from '../../services/feeEngine';
 import { 
@@ -27,7 +27,9 @@ import {
   Bell,
   RefreshCw,
   CheckCircle2,
-  MoreHorizontal
+  MoreHorizontal,
+  Download,
+  Smartphone
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -68,6 +70,38 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isUserSwitcherOpen, setIsUserSwitcherOpen] = useState(false);
   const [isMoreDropdownOpen, setIsMoreDropdownOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsAppInstalled(true);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsAppInstalled(true);
+      }
+      setInstallPrompt(null);
+    } else {
+      alert('To install PSA Broker on your device:\n\n• On iPhone / iPad (Safari): Tap the Share button at the bottom, then choose "Add to Home Screen".\n• On Android (Chrome): Tap the three dots menu in the browser, then select "Install app" or "Add to Home screen".\n• On Desktop (Chrome/Edge): Click the Install icon in the browser address bar.');
+    }
+  };
 
   const primaryNavItems = [
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
@@ -147,6 +181,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Demo Persona Switcher & Auth State */}
           <div className="flex items-center gap-2 shrink-0">
+            {!isAppInstalled && (
+              <button
+                onClick={handleInstallClick}
+                className="flex items-center gap-1 text-[10px] sm:text-[11px] bg-emerald-700/80 hover:bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full shadow transition-all shrink-0 border border-emerald-500/40"
+                title="Install PSA Broker Progressive Web App on your phone or desktop"
+              >
+                <Download className="w-2.5 h-2.5" />
+                <span>Install App</span>
+              </button>
+            )}
+
             <div className="relative flex items-center gap-1.5">
               <button
                 onClick={() => setIsUserSwitcherOpen(!isUserSwitcherOpen)}

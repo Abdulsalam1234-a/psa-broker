@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { formatNaira } from '../../services/feeEngine';
 import { getNGXMarketStatus } from '../../services/marketHours';
+import { calculatePortfolioRiskMetrics } from '../../services/portfolioAnalytics';
+import { PortfolioRiskAnalyticsCard } from './PortfolioRiskAnalyticsCard';
 import { 
   Wallet, 
   TrendingUp, 
@@ -83,6 +85,16 @@ export const PortfolioOverviewView: React.FC<PortfolioOverviewViewProps> = ({
 
   const pendingOrders = activeAccount.orders.filter(o => o.status === 'PENDING');
   const filledOrders = activeAccount.orders.filter(o => o.status === 'FILLED').slice(0, 5);
+
+  const riskMetrics = useMemo(() => {
+    return calculatePortfolioRiskMetrics(
+      activeAccount.positions,
+      stocks,
+      activeAccount.cashBalance,
+      totalValue,
+      totalGrowthPct
+    );
+  }, [activeAccount.positions, stocks, activeAccount.cashBalance, totalValue, totalGrowthPct]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -227,6 +239,9 @@ export const PortfolioOverviewView: React.FC<PortfolioOverviewViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Portfolio Risk & Quantitative MPT Analytics */}
+      <PortfolioRiskAnalyticsCard metrics={riskMetrics} totalValue={totalValue} />
 
       {/* Latest Market Simulation Flash & WhatsApp Ticker */}
       {marketNews.length > 0 && (

@@ -15,9 +15,10 @@ import {
 interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenTour?: () => void;
 }
 
-export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose }) => {
+export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, onOpenTour }) => {
   const { currentUser, userAccounts, participants, resetAllData } = useApp();
 
   if (!isOpen) return null;
@@ -168,12 +169,28 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             <span>Reset Demo State</span>
           </button>
 
-          <button
-            onClick={onClose}
-            className="py-2 px-5 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-bold text-xs uppercase tracking-wider transition-colors"
-          >
-            Close
-          </button>
+          <div className="flex items-center gap-2">
+            {onOpenTour && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenTour();
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-gold-300 border border-gold-500/30 text-xs font-bold transition-all"
+                title="Launch guided tour of PSA Broker"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-gold-400" />
+                <span>Guided Tour</span>
+              </button>
+            )}
+
+            <button
+              onClick={onClose}
+              className="py-2 px-5 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-bold text-xs uppercase tracking-wider transition-colors"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

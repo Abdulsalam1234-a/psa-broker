@@ -17,6 +17,7 @@ import { SuperAdminStudioView } from './components/admin/SuperAdminStudioView';
 import { UserProfileModal } from './components/profile/UserProfileModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { PriceAlertsModal } from './components/trading/PriceAlertsModal';
+import { OnboardingTourModal } from './components/common/OnboardingTourModal';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Stock } from './types';
 
@@ -39,6 +40,9 @@ const MainAppContent: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isPriceAlertsModalOpen, setIsPriceAlertsModalOpen] = useState<boolean>(false);
   const [leaderboardEventId, setLeaderboardEventId] = useState<string | undefined>(undefined);
+  const [isOnboardingTourOpen, setIsOnboardingTourOpen] = useState<boolean>(() => {
+    return localStorage.getItem('psa_tour_completed') !== 'true';
+  });
 
   // When clicking on an asset from portfolio or stock directory
   const handleSelectAsset = (ticker: string) => {
@@ -216,6 +220,14 @@ const MainAppContent: React.FC = () => {
       <UserProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+        onOpenTour={() => setIsOnboardingTourOpen(true)}
+      />
+
+      {/* Interactive Guided Onboarding Tour */}
+      <OnboardingTourModal
+        isOpen={isOnboardingTourOpen}
+        onClose={() => setIsOnboardingTourOpen(false)}
+        onNavigateTab={(tab) => setActiveTab(tab)}
       />
 
       {/* Authentication Modal (Shows if user clicks Sign In or if not authenticated) */}

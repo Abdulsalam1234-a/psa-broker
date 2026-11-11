@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { NGXSector, Stock } from '../../types';
 import { NGX_SECTORS } from '../../data/ngxUniverse';
 import { formatNaira } from '../../services/feeEngine';
+import { MarketHeatmapView } from './MarketHeatmapView';
 import { 
   Search, 
   TrendingUp, 
@@ -16,7 +17,10 @@ import {
   Sparkles,
   Layers,
   RefreshCw,
-  CheckCircle2
+  CheckCircle2,
+  LayoutGrid,
+  Flame,
+  List
 } from 'lucide-react';
 
 interface StockDirectoryViewProps {
@@ -37,6 +41,7 @@ export const StockDirectoryView: React.FC<StockDirectoryViewProps> = ({
     syncTradingViewQuotes
   } = useApp();
 
+  const [viewMode, setViewMode] = useState<'TABLE' | 'HEATMAP'>('TABLE');
   const [isSyncing, setIsSyncing] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -131,18 +136,46 @@ export const StockDirectoryView: React.FC<StockDirectoryViewProps> = ({
           </div>
         </div>
 
-        <button
-          onClick={async () => {
-            setIsSyncing(true);
-            await syncTradingViewQuotes();
-            setTimeout(() => setIsSyncing(false), 500);
-          }}
-          disabled={isSyncing}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-navy-800 hover:bg-navy-750 text-gold-400 border border-gold-500/40 hover:border-gold-500 shadow-sm transition-all disabled:opacity-50"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-          <span>{isSyncing ? 'Fetching Live Quotes...' : 'Sync Live TradingView Quotes'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* View Mode Switcher */}
+          <div className="flex items-center bg-navy-800/90 p-1 rounded-xl border border-navy-700">
+            <button
+              onClick={() => setViewMode('TABLE')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                viewMode === 'TABLE'
+                  ? 'bg-gold-500 text-navy-950 shadow-sm font-bold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <List className="w-3.5 h-3.5" />
+              <span>Table View</span>
+            </button>
+            <button
+              onClick={() => setViewMode('HEATMAP')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                viewMode === 'HEATMAP'
+                  ? 'bg-gold-500 text-navy-950 shadow-sm font-bold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Market Heatmap</span>
+            </button>
+          </div>
+
+          <button
+            onClick={async () => {
+              setIsSyncing(true);
+              await syncTradingViewQuotes();
+              setTimeout(() => setIsSyncing(false), 500);
+            }}
+            disabled={isSyncing}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-navy-800 hover:bg-navy-750 text-gold-400 border border-gold-500/40 hover:border-gold-500 shadow-sm transition-all disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'Fetching...' : 'Sync Live'}</span>
+          </button>
+        </div>
       </div>
 
       {/* NGX Market Summary Ribbon */}
@@ -205,8 +238,12 @@ export const StockDirectoryView: React.FC<StockDirectoryViewProps> = ({
         </div>
       </div>
 
-      {/* Search & Sector Filters */}
-      <div className="bg-navy-900/90 border border-navy-700/80 rounded-2xl p-5 shadow-lg space-y-4">
+      {viewMode === 'HEATMAP' ? (
+        <MarketHeatmapView stocks={stocks} onSelectStock={onSelectStockToTrade} />
+      ) : (
+        <>
+          {/* Search & Sector Filters */}
+          <div className="bg-navy-900/90 border border-navy-700/80 rounded-2xl p-5 shadow-lg space-y-4">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Instant Search Bar */}
           <div className="relative flex-1">
@@ -415,6 +452,8 @@ export const StockDirectoryView: React.FC<StockDirectoryViewProps> = ({
           </table>
         </div>
       </div>
-    </div>
+    </>
+  )}
+</div>
   );
 };

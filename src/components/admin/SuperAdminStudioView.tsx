@@ -41,8 +41,10 @@ import {
   Activity, 
   Radio, 
   Briefcase,
-  FileText
+  FileText,
+  Download
 } from 'lucide-react';
+import { exportEventGradebookCSV } from '../../services/gradebookExport';
 
 export const SuperAdminStudioView: React.FC = () => {
   const { 
@@ -807,6 +809,23 @@ export const SuperAdminStudioView: React.FC = () => {
                       </option>
                     ))}
                   </select>
+
+                  <button
+                    onClick={() => {
+                      const res = exportEventGradebookCSV(activeEvent, participants.filter(p => p.eventId === activeEvent.id), users);
+                      if (res.success) {
+                        setNotification({
+                          success: true,
+                          message: `Gradebook successfully exported (${res.count} students) to ${res.filename}`
+                        });
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all border border-emerald-400/40"
+                    title="Export complete event student roster and gradebook to CSV"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Export Gradebook (CSV)</span>
+                  </button>
 
                   <button
                     onClick={() => openEditEvent(activeEvent)}

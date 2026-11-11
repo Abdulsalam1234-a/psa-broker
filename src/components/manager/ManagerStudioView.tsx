@@ -33,8 +33,10 @@ import {
   FileText,
   PlusCircle,
   HelpCircle,
-  Check
+  Check,
+  Download
 } from 'lucide-react';
+import { exportEventGradebookCSV } from '../../services/gradebookExport';
 
 export const ManagerStudioView: React.FC = () => {
   const { 
@@ -86,6 +88,7 @@ export const ManagerStudioView: React.FC = () => {
   const [awardXpStudentId, setAwardXpStudentId] = useState<string | null>(null);
   const [xpAmount, setXpAmount] = useState<number>(50);
   const [xpReason, setXpReason] = useState<string>('Exemplary 3-Statement Balance Sheet Teardown');
+  const [exportSuccessMessage, setExportSuccessMessage] = useState<string | null>(null);
 
   // Simulation News State (Event-Scoped)
   const [newsHeadline, setNewsHeadline] = useState('');
@@ -442,7 +445,7 @@ export const ManagerStudioView: React.FC = () => {
 
           {/* Enrolled Students Table */}
           <div className="bg-navy-900 border border-navy-700/80 rounded-2xl shadow-xl overflow-hidden">
-            <div className="p-4 bg-navy-950/60 border-b border-navy-800 flex items-center justify-between">
+            <div className="p-4 bg-navy-950/60 border-b border-navy-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-gold-400" />
                 <h4 className="text-xs font-bold text-white uppercase tracking-wider">
@@ -450,17 +453,44 @@ export const ManagerStudioView: React.FC = () => {
                 </h4>
               </div>
 
-              <div className="relative w-64">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-                <input
-                  type="text"
-                  value={studentSearch}
-                  onChange={(e) => setStudentSearch(e.target.value)}
-                  placeholder="Filter roster..."
-                  className="w-full pl-8 pr-3 py-1 bg-navy-900 border border-navy-700 rounded-lg text-xs text-white"
-                />
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => {
+                    const res = exportEventGradebookCSV(activeEvent, eventParticipants, users);
+                    if (res.success) {
+                      setExportSuccessMessage(`Exported ${res.count} student grades to ${res.filename}`);
+                      setTimeout(() => setExportSuccessMessage(null), 5000);
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all border border-emerald-400/40"
+                  title="Download complete cohort gradebook in CSV format"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export Gradebook (CSV)</span>
+                </button>
+
+                <div className="relative w-48 sm:w-56">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    value={studentSearch}
+                    onChange={(e) => setStudentSearch(e.target.value)}
+                    placeholder="Filter roster..."
+                    className="w-full pl-8 pr-3 py-1 bg-navy-900 border border-navy-700 rounded-lg text-xs text-white"
+                  />
+                </div>
               </div>
             </div>
+
+            {exportSuccessMessage && (
+              <div className="bg-emerald-950/80 border-b border-emerald-600/50 p-2.5 px-4 text-xs text-emerald-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{exportSuccessMessage}</span>
+                </div>
+                <button onClick={() => setExportSuccessMessage(null)} className="text-emerald-400 hover:text-white text-xs">Dismiss</button>
+              </div>
+            )}
 
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
