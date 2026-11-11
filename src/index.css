@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-canvas text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-gold-500/30 selection:text-gold-300;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom terminal scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #061024;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E3A6E;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C9A84C;
+}
+
+/* Tabular figures for financial numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Glass panel effect */
+.glass-panel {
+  background: rgba(14, 40, 86, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(30, 58, 110, 0.6);
+}
+
+.gold-glow {
+  box-shadow: 0 0 15px rgba(201, 168, 76, 0.25);
+}
